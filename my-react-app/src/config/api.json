@@ -1,0 +1,8 @@
+{
+  "baseUrl": "https://rajanbio-dotnet.onrender.com",
+  "endpoints": {
+    "master": "/api/Master"
+  },
+  "timeout": 10000,
+  "retryAttempts": 3
+}
