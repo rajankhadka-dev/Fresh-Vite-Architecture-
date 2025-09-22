@@ -1,30 +1,310 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import CustomCursor from '../components/CustomCursor'
 import FloatingShapes from '../components/FloatingShapes'
 import ScrollIndicator from '../components/ScrollIndicator'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
-import { getPassphrase } from '../config/settings'
+import { getPassphrase, getApiUrl } from '../config/settings'
 import apiService from '../services/apiService'
+
+// Add styles for the new dashboard components
+const dashboardStyles = `
+  .dashboard-section {
+    padding: 80px 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .dashboard-title {
+    text-align: center;
+    font-size: 3rem;
+    margin-bottom: 2rem;
+    color: white;
+  }
+
+  .dashboard-layout {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .form-container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    height: fit-content;
+  }
+
+  .dashboard-container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .date-filter {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    align-items: end;
+    flex-wrap: wrap;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .filter-label {
+    color: white;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+
+  .filter-input, .filter-select {
+    padding: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    backdrop-filter: blur(10px);
+  }
+
+  .filter-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .filter-button {
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .filter-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+
+  .filter-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .charts-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .chart-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .chart-title, .table-title {
+    color: white;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .table-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .table-container {
+    overflow-x: auto;
+    border-radius: 10px;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .data-table th {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .data-table td {
+    padding: 0.75rem 1rem;
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .data-table tr:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .total-row {
+    background: rgba(255, 255, 255, 0.15) !important;
+    font-weight: 600;
+  }
+
+  .amount-cell {
+    text-align: right;
+    font-weight: 500;
+  }
+
+  .type-cell {
+    font-weight: 500;
+  }
+
+  .remarks-cell {
+    max-width: 200px;
+    word-wrap: break-word;
+  }
+
+  .loading-dashboard, .error-dashboard, .no-data {
+    text-align: center;
+    color: white;
+    padding: 2rem;
+    font-size: 1.1rem;
+  }
+
+  .error-dashboard {
+    color: #ff6b6b;
+  }
+
+  .chart-tooltip {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 0.75rem;
+    color: white;
+  }
+
+  .tooltip-label {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .tooltip-value {
+    color: #4fc3f7;
+    margin-bottom: 0.25rem;
+  }
+
+  .tooltip-remarks {
+    color: #b39ddb;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 1024px) {
+    .dashboard-layout {
+      grid-template-columns: 1fr;
+    }
+    
+    .charts-container {
+      grid-template-columns: 1fr;
+    }
+    
+    .date-filter {
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .dashboard-title {
+      font-size: 2rem;
+    }
+    
+    .form-container, .dashboard-container {
+      padding: 1rem;
+    }
+    
+    .data-table th, .data-table td {
+      padding: 0.5rem;
+      font-size: 0.9rem;
+    }
+  }
+`
+
+// Inject styles
+if (typeof document !== 'undefined') {
+  const styleElement = document.createElement('style')
+  styleElement.textContent = dashboardStyles
+  document.head.appendChild(styleElement)
+}
 
 const Portfolio = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
   const [formData, setFormData] = useState({
-    isIncome: false,
-    isExpense: false,
-    isLending: false,
-    lendingReceived: false, // Fixed typo: was 'lendinReceived'
+    transactionType: '',
     type: '',
     amount: 0,
     remarks: ''
   })
+  const [typeOptions, setTypeOptions] = useState([])
+  const [isLoadingTypes, setIsLoadingTypes] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitMessage, setSubmitMessage] = useState('')
   const [error, setError] = useState('')
 
+  // New state for dashboard data
+  const [dashboardData, setDashboardData] = useState([])
+  const [isLoadingData, setIsLoadingData] = useState(false)
+  const [dashboardError, setDashboardError] = useState('')
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1)
+
   const correctPassphrase = getPassphrase()
+
+  // Transaction type options for radio buttons
+  const transactionTypes = [
+    { value: 'income', label: 'Income' },
+    { value: 'expense', label: 'Expense' },
+    { value: 'lending', label: 'Lending' },
+    { value: 'lending_received', label: 'Lending Received' },
+    { value: 'payable_amount', label: 'Payable Amount' },
+    { value: 'payable_amount_paid', label: 'Payable Amount Paid' }
+  ]
+
+  // Month options
+  const months = [
+    { value: 1, label: 'January' },
+    { value: 2, label: 'February' },
+    { value: 3, label: 'March' },
+    { value: 4, label: 'April' },
+    { value: 5, label: 'May' },
+    { value: 6, label: 'June' },
+    { value: 7, label: 'July' },
+    { value: 8, label: 'August' },
+    { value: 9, label: 'September' },
+    { value: 10, label: 'October' },
+    { value: 11, label: 'November' },
+    { value: 12, label: 'December' }
+  ]
+
+  // Colors for charts
+  const COLORS = [
+    '#8884d8', '#82ca9d', '#ffc658', '#ff7c7c', 
+    '#8dd1e1', '#d084d0', '#ffb347', '#87ceeb'
+  ]
 
   useEffect(() => {
     // Smooth scrolling for navigation links
@@ -50,6 +330,55 @@ const Portfolio = () => {
     }
   }, [])
 
+  // Load dashboard data when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchDashboardData()
+    }
+  }, [isAuthenticated, selectedYear, selectedMonth])
+
+  // Fetch dropdown options when transaction type changes
+  useEffect(() => {
+    if (formData.transactionType) {
+      fetchTypeOptions(formData.transactionType)
+    } else {
+      setTypeOptions([])
+      setFormData(prev => ({ ...prev, type: '' }))
+    }
+  }, [formData.transactionType])
+
+  const fetchDashboardData = async () => {
+    setIsLoadingData(true)
+    setDashboardError('')
+    
+    try {
+      const data = await apiService.getMonthlyData(selectedYear, selectedMonth)
+      setDashboardData(data)
+    } catch (err) {
+      console.error('Failed to fetch dashboard data:', err)
+      setDashboardError('Failed to load dashboard data. Please try again.')
+      setDashboardData([])
+    } finally {
+      setIsLoadingData(false)
+    }
+  }
+
+  const fetchTypeOptions = async (category) => {
+    setIsLoadingTypes(true)
+    setError('')
+    
+    try {
+      const options = await apiService.getDropdownOptions(category)
+      setTypeOptions(options)
+    } catch (err) {
+      console.error('Failed to fetch dropdown options:', err)
+      setError(`Failed to load options for ${category}. Please try again.`)
+      setTypeOptions([])
+    } finally {
+      setIsLoadingTypes(false)
+    }
+  }
+
   const handlePasswordSubmit = (e) => {
     e.preventDefault()
     if (password === correctPassphrase) {
@@ -63,10 +392,19 @@ const Portfolio = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }))
+    
+    if (name === 'transactionType') {
+      setFormData(prev => ({
+        ...prev,
+        transactionType: value,
+        type: ''
+      }))
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
+      }))
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -76,19 +414,31 @@ const Portfolio = () => {
     setSubmitMessage('')
 
     try {
-      const result = await apiService.submitMasterData(formData)
+      const submitData = {
+        isIncome: formData.transactionType === 'income',
+        isExpense: formData.transactionType === 'expense',
+        isLending: formData.transactionType === 'lending',
+        lendinReceived: formData.transactionType === 'lending_received',
+        payableAmount: formData.transactionType === 'payable_amount',
+        payableaAmountPaid: formData.transactionType === 'payable_amount_paid',
+        type: formData.type,
+        amount: parseFloat(formData.amount),
+        remarks: formData.remarks
+      }
+
+      const result = await apiService.submitMasterData(submitData)
       
       if (result.success) {
         setSubmitMessage(result.message)
         setFormData({
-          isIncome: false,
-          isExpense: false,
-          isLending: false,
-          lendingReceived: false,
+          transactionType: '',
           type: '',
           amount: 0,
           remarks: ''
         })
+        setTypeOptions([])
+        // Refresh dashboard data after successful submission
+        fetchDashboardData()
       } else {
         setError(result.error)
       }
@@ -98,6 +448,63 @@ const Portfolio = () => {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  // Prepare data for charts
+  const prepareChartData = () => {
+    if (!dashboardData.length) return { pieData: [], barData: [] }
+
+    // Filter out total rows for charts
+    const filteredData = dashboardData.filter(item => 
+      !item.type.toLowerCase().includes('total') && 
+      item.amount > 0
+    )
+
+    // Group data by main categories for pie chart
+    const categoryTotals = {}
+    filteredData.forEach(item => {
+      const mainCategory = item.type.includes('LENDING RECEIVED') ? 'LENDING RECEIVED' :
+                          item.type.includes('Payable Amount Paid') ? 'Payable Amount Paid' :
+                          item.type.includes('Payable Amount') ? 'Payable Amount' :
+                          item.type.includes('LENDING') ? 'LENDING' :
+                          item.type.includes('EXPENSE') ? 'EXPENSE' : 'INCOME'
+      
+      if (!categoryTotals[mainCategory]) {
+        categoryTotals[mainCategory] = 0
+      }
+      categoryTotals[mainCategory] += item.amount
+    })
+
+    const pieData = Object.entries(categoryTotals).map(([category, amount]) => ({
+      name: category,
+      value: amount
+    }))
+
+    const barData = filteredData.map(item => ({
+      name: item.type.length > 20 ? item.type.substring(0, 20) + '...' : item.type,
+      fullName: item.type,
+      amount: item.amount,
+      remarks: item.remarks
+    }))
+
+    return { pieData, barData }
+  }
+
+  const { pieData, barData } = prepareChartData()
+
+  // Custom tooltip for charts
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload
+      return (
+        <div className="chart-tooltip">
+          <p className="tooltip-label">{data.fullName || data.name}</p>
+          <p className="tooltip-value">Amount: ${payload[0].value?.toLocaleString()}</p>
+          {data.remarks && <p className="tooltip-remarks">Remarks: {data.remarks}</p>}
+        </div>
+      )
+    }
+    return null
   }
 
   if (!isAuthenticated) {
@@ -158,148 +565,248 @@ const Portfolio = () => {
       <FloatingShapes />
       <Header />
       
-      <section className="form-section">
+      <section className="dashboard-section">
         <div className="container">
-          <div className="form-container">
-            <h1 className="form-title">
-              <span className="gradient-text">Data Entry Form</span>
-            </h1>
-            <p className="form-subtitle">
-              Submit your financial data to the system
-            </p>
-            
-            <form onSubmit={handleSubmit} className="data-form">
-              <div className="form-grid">
-                {/* Checkbox Fields */}
-                <div className="checkbox-group">
-                  <h3 className="group-title">Transaction Types</h3>
-                  <div className="checkbox-row">
-                    <label className="checkbox-label">
-                      <input
-                        type="checkbox"
-                        name="isIncome"
-                        checked={formData.isIncome}
-                        onChange={handleInputChange}
-                        className="checkbox-input"
-                      />
-                      <span className="checkbox-custom"></span>
-                      Income
-                    </label>
+          <h1 className="dashboard-title">
+            <span className="gradient-text">Financial Dashboard</span>
+          </h1>
+          
+          <div className="dashboard-layout">
+            {/* Left Side - Transaction Form */}
+            <div className="form-container">
+              <h2 className="form-title">Add Transaction</h2>
+              
+              <form onSubmit={handleSubmit} className="data-form">
+                <div className="form-grid">
+                  {/* Radio Button Fields for Transaction Types */}
+                  <div className="radio-group">
+                    <h3 className="group-title">Transaction Type</h3>
+                    {transactionTypes.map((option) => (
+                      <div key={option.value} className="radio-row">
+                        <label className="radio-label">
+                          <input
+                            type="radio"
+                            name="transactionType"
+                            value={option.value}
+                            checked={formData.transactionType === option.value}
+                            onChange={handleInputChange}
+                            className="radio-input"
+                          />
+                          <span className="radio-custom"></span>
+                          {option.label}
+                        </label>
+                      </div>
+                    ))}
                   </div>
-                  
-                  <div className="checkbox-row">
-                    <label className="checkbox-label">
-                      <input
-                        type="checkbox"
-                        name="isExpense"
-                        checked={formData.isExpense}
-                        onChange={handleInputChange}
-                        className="checkbox-input"
-                      />
-                      <span className="checkbox-custom"></span>
-                      Expense
-                    </label>
+
+                  {/* Type Dropdown */}
+                  {formData.transactionType && (
+                    <div className="input-group">
+                      <label className="input-label">Type</label>
+                      {isLoadingTypes ? (
+                        <div className="loading-message">Loading options...</div>
+                      ) : (
+                        <select
+                          name="type"
+                          value={formData.type}
+                          onChange={handleInputChange}
+                          className="form-select"
+                          required
+                          disabled={typeOptions.length === 0}
+                        >
+                          <option value="">Select a type</option>
+                          {typeOptions.map((option) => (
+                            <option key={option.value} value={option.id}>
+                              {option.value}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="input-group">
+                    <label className="input-label">Amount</label>
+                    <input
+                      type="number"
+                      name="amount"
+                      value={formData.amount}
+                      onChange={handleInputChange}
+                      placeholder="Enter amount"
+                      className="form-input"
+                      min="0"
+                      step="0.01"
+                      required
+                    />
                   </div>
-                  
-                  <div className="checkbox-row">
-                    <label className="checkbox-label">
-                      <input
-                        type="checkbox"
-                        name="isLending"
-                        checked={formData.isLending}
-                        onChange={handleInputChange}
-                        className="checkbox-input"
-                      />
-                      <span className="checkbox-custom"></span>
-                      Lending
-                    </label>
-                  </div>
-                  
-                  <div className="checkbox-row">
-                    <label className="checkbox-label">
-                      <input
-                        type="checkbox"
-                        name="lendingReceived" // Fixed name to match state
-                        checked={formData.lendingReceived}
-                        onChange={handleInputChange}
-                        className="checkbox-input"
-                      />
-                      <span className="checkbox-custom"></span>
-                      Lending Received
-                    </label>
+
+                  <div className="input-group full-width">
+                    <label className="input-label">Remarks</label>
+                    <textarea
+                      name="remarks"
+                      value={formData.remarks}
+                      onChange={handleInputChange}
+                      placeholder="Enter remarks or description"
+                      className="form-textarea"
+                      rows="4"
+                      required
+                    />
                   </div>
                 </div>
 
-                {/* Text Fields */}
-                <div className="input-group">
-                  <label className="input-label">Type</label>
-                  <input
-                    type="text"
-                    name="type"
-                    value={formData.type}
-                    onChange={handleInputChange}
-                    placeholder="Enter transaction type"
-                    className="form-input"
-                    required
-                  />
-                </div>
+                {error && <div className="error-message">{error}</div>}
+                {submitMessage && <div className="success-message">{submitMessage}</div>}
 
-                <div className="input-group">
-                  <label className="input-label">Amount</label>
+                <div className="form-buttons">
+                  <button 
+                    type="submit" 
+                    className="stylish-button"
+                    disabled={isSubmitting || !formData.transactionType || !formData.type}
+                  >
+                    {isSubmitting ? 'Submitting...' : 'Submit Data'}
+                  </button>
+                  
+                  <button 
+                    type="button" 
+                    onClick={() => setIsAuthenticated(false)}
+                    className="stylish-button secondary"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Right Side - Dashboard */}
+            <div className="dashboard-container">
+              {/* Date Filter */}
+              <div className="date-filter">
+                <div className="filter-group">
+                  <label className="filter-label">Year:</label>
                   <input
                     type="number"
-                    name="amount"
-                    value={formData.amount}
-                    onChange={handleInputChange}
-                    placeholder="Enter amount"
-                    className="form-input"
-                    min="0"
-                    step="0.01"
-                    required
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                    className="filter-input"
+                    min="2020"
+                    max="2030"
                   />
                 </div>
-
-                <div className="input-group full-width">
-                  <label className="input-label">Remarks</label>
-                  <textarea
-                    name="remarks"
-                    value={formData.remarks}
-                    onChange={handleInputChange}
-                    placeholder="Enter remarks or description"
-                    className="form-textarea"
-                    rows="4"
-                    required
-                  />
+                <div className="filter-group">
+                  <label className="filter-label">Month:</label>
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                    className="filter-select"
+                  >
+                    {months.map(month => (
+                      <option key={month.value} value={month.value}>
+                        {month.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              </div>
-
-              {error && <div className="error-message">{error}</div>}
-              {submitMessage && <div className="success-message">{submitMessage}</div>}
-
-              <div className="form-buttons">
                 <button 
-                  type="submit" 
-                  className="stylish-button"
-                  disabled={isSubmitting}
+                  onClick={fetchDashboardData}
+                  className="filter-button"
+                  disabled={isLoadingData}
                 >
-                  {isSubmitting ? 'Submitting...' : 'Submit Data'}
-                </button>
-                
-                <button 
-                  type="button" 
-                  onClick={() => setIsAuthenticated(false)}
-                  className="stylish-button secondary"
-                >
-                  Logout
+                  {isLoadingData ? 'Loading...' : 'Refresh'}
                 </button>
               </div>
-            </form>
-            
-            <div className="hero-buttons">
-              <Link to="/" className="stylish-button secondary">
-                ← Back to Home
-              </Link>
+
+              {/* Charts Section */}
+              {isLoadingData ? (
+                <div className="loading-dashboard">Loading dashboard data...</div>
+              ) : dashboardError ? (
+                <div className="error-dashboard">{dashboardError}</div>
+              ) : dashboardData.length > 0 ? (
+                <>
+                  {/* Charts */}
+                  <div className="charts-container">
+                    {/* Pie Chart */}
+                    <div className="chart-section">
+                      <h3 className="chart-title">Category Distribution</h3>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <PieChart>
+                          <Pie
+                            data={pieData}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, value }) => `${name}: $${value.toLocaleString()}`}
+                            outerRadius={80}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            {pieData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, 'Amount']} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    {/* Bar Chart */}
+                    <div className="chart-section">
+                      <h3 className="chart-title">Transactions Breakdown</h3>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={barData}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis 
+                            dataKey="name" 
+                            angle={-45}
+                            textAnchor="end"
+                            height={100}
+                            interval={0}
+                          />
+                          <YAxis tickFormatter={(value) => `$${value.toLocaleString()}`} />
+                          <Tooltip content={<CustomTooltip />} />
+                          <Bar dataKey="amount" fill="#8884d8" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Data Table */}
+                  <div className="table-section">
+                    <h3 className="table-title">Transaction Details</h3>
+                    <div className="table-container">
+                      <table className="data-table">
+                        <thead>
+                          <tr>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Remarks</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {dashboardData.map((item, index) => (
+                            <tr 
+                              key={index} 
+                              className={item.type.toLowerCase().includes('total') ? 'total-row' : ''}
+                            >
+                              <td className="type-cell">{item.type}</td>
+                              <td className="amount-cell">${item.amount.toLocaleString()}</td>
+                              <td className="remarks-cell">{item.remarks || '-'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="no-data">No data available for the selected period.</div>
+              )}
             </div>
+          </div>
+          
+          <div className="hero-buttons">
+            <Link to="/" className="stylish-button secondary">
+              ← Back to Home
+            </Link>
           </div>
         </div>
       </section>

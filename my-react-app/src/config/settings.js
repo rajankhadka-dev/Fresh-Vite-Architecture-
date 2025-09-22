@@ -6,15 +6,17 @@ export const settings = {
     timeout: parseInt(import.meta.env.VITE_API_TIMEOUT) || 10000,
     retryAttempts: parseInt(import.meta.env.VITE_API_RETRY_ATTEMPTS) || 3,
     endpoints: {
-      master: '/api/Master'
+      master: '/api/Master',
+      getdropdown: '/api/Banks/category',
+      monthlyData: '/api/Master/MonthlyIncomeExpense' // New endpoint for monthly data
     }
   },
-  
+
   // Authentication
   auth: {
     passphrase: 'rajan123'
   },
-  
+
   // UI Configuration
   ui: {
     animationDuration: 300,
@@ -29,6 +31,10 @@ export const getApiUrl = (endpoint) => {
 
 export const getMasterApiUrl = () => {
   return getApiUrl('master')
+}
+
+export const getMonthlyDataUrl = (year, month) => {
+  return `${getApiUrl('monthlyData')}?year=${year}&month=${month}`
 }
 
 export const getPassphrase = () => {

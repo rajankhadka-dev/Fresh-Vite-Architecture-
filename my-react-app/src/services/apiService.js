@@ -1,9 +1,10 @@
-import { getMasterApiUrl } from '../config/settings'
+import { getMasterApiUrl, getApiUrl, getMonthlyDataUrl } from '../config/settings'
 
 // API Service with retry logic and better error handling
 class ApiService {
   constructor() {
     this.baseUrl = getMasterApiUrl()
+    this.dropdownBaseUrl = getApiUrl('getdropdown')
   }
 
   // Generic fetch method with retry logic
@@ -40,6 +41,60 @@ class ApiService {
   // Delay helper for retry logic
   delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
+  // Get monthly income/expense data
+  async getMonthlyData(year, month) {
+    const url = getMonthlyDataUrl(year, month)
+    console.log('Fetching monthly data from:', url)
+
+    try {
+      const response = await this.fetchWithRetry(url, {
+        method: 'GET'
+      })
+
+      console.log('Monthly data response status:', response.status)
+
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Monthly data received:', data)
+        return data || []
+      } else {
+        const errorText = await response.text()
+        console.error('Monthly data API error:', response.status, errorText)
+        throw new Error(`Failed to fetch monthly data: ${response.status} ${response.statusText}`)
+      }
+    } catch (error) {
+      console.error('Monthly data API request failed:', error)
+      throw new Error(`Network error while fetching monthly data: ${error.message}`)
+    }
+  }
+
+  // Get dropdown options for a specific category
+  async getDropdownOptions(category) {
+    const url = `${this.dropdownBaseUrl}/${category}`
+    console.log('Fetching dropdown options from:', url)
+
+    try {
+      const response = await this.fetchWithRetry(url, {
+        method: 'GET'
+      })
+
+      console.log('Dropdown response status:', response.status)
+
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Dropdown data received:', data)
+        return data || []
+      } else {
+        const errorText = await response.text()
+        console.error('Dropdown API error:', response.status, errorText)
+        throw new Error(`Failed to fetch dropdown options: ${response.status} ${response.statusText}`)
+      }
+    } catch (error) {
+      console.error('Dropdown API request failed:', error)
+      throw new Error(`Network error while fetching dropdown options: ${error.message}`)
+    }
   }
 
   // Submit data to Master API
