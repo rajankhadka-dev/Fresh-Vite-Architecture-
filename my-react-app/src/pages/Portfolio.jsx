@@ -123,6 +123,13 @@ const dashboardStyles = `
     text-align: center;
   }
 
+  .tables-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
   .table-section {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 15px;
@@ -133,6 +140,8 @@ const dashboardStyles = `
   .table-container {
     overflow-x: auto;
     border-radius: 10px;
+    max-height: 400px;
+    overflow-y: auto;
   }
 
   .data-table {
@@ -148,6 +157,9 @@ const dashboardStyles = `
     text-align: left;
     font-weight: 600;
     border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 10;
   }
 
   .data-table td {
@@ -163,6 +175,7 @@ const dashboardStyles = `
   .total-row {
     background: rgba(255, 255, 255, 0.15) !important;
     font-weight: 600;
+    border-top: 2px solid rgba(255, 255, 255, 0.3);
   }
 
   .amount-cell {
@@ -218,7 +231,7 @@ const dashboardStyles = `
       grid-template-columns: 1fr;
     }
     
-    .charts-container {
+    .charts-container, .tables-container {
       grid-template-columns: 1fr;
     }
     
@@ -300,9 +313,20 @@ const Portfolio = () => {
     { value: 12, label: 'December' }
   ]
 
-  // Colors for charts
+  // Colors for charts - mapping specific colors to transaction types
+  const getColorForType = (type) => {
+    const lowerType = type.toLowerCase()
+    if (lowerType.includes('expense')) return '#ff4444' // Red for expenses
+    if (lowerType.includes('income')) return '#228B22' // Dark green for income/savings
+    if (lowerType.includes('lending received')) return '#32CD32' // Lime green for lending received
+    if (lowerType.includes('payable amount paid')) return '#90EE90' // Light green for payable paid
+    if (lowerType.includes('lending')) return '#ffc658' // Yellow for lending
+    if (lowerType.includes('payable amount')) return '#ff7c7c' // Light red for payable amount
+    return '#8dd1e1' // Default light blue
+  }
+
   const COLORS = [
-    '#8884d8', '#82ca9d', '#ffc658', '#ff7c7c', 
+    '#228B22', '#ff4444', '#ffc658', '#32CD32', 
     '#8dd1e1', '#d084d0', '#ffb347', '#87ceeb'
   ]
 
@@ -450,47 +474,65 @@ const Portfolio = () => {
     }
   }
 
-  // Prepare data for charts
+  // Prepare data for charts - only show totals
   const prepareChartData = () => {
     if (!dashboardData.length) return { pieData: [], barData: [] }
 
-    // Filter out total rows for charts
-    const filteredData = dashboardData.filter(item => 
-      !item.type.toLowerCase().includes('total') && 
+    // Get only the total rows for charts
+    const totalRows = dashboardData.filter(item => 
+      item.type.toLowerCase().includes('total') && 
       item.amount > 0
     )
 
-    // Group data by main categories for pie chart
-    const categoryTotals = {}
-    filteredData.forEach(item => {
-      const mainCategory = item.type.includes('LENDING RECEIVED') ? 'LENDING RECEIVED' :
-                          item.type.includes('Payable Amount Paid') ? 'Payable Amount Paid' :
-                          item.type.includes('Payable Amount') ? 'Payable Amount' :
-                          item.type.includes('LENDING') ? 'LENDING' :
-                          item.type.includes('EXPENSE') ? 'EXPENSE' : 'INCOME'
-      
-      if (!categoryTotals[mainCategory]) {
-        categoryTotals[mainCategory] = 0
-      }
-      categoryTotals[mainCategory] += item.amount
-    })
-
-    const pieData = Object.entries(categoryTotals).map(([category, amount]) => ({
-      name: category,
-      value: amount
+    const pieData = totalRows.map(item => ({
+      name: item.type,
+      value: item.amount
     }))
 
-    const barData = filteredData.map(item => ({
-      name: item.type.length > 20 ? item.type.substring(0, 20) + '...' : item.type,
+    const barData = totalRows.map(item => ({
+      name: item.type.length > 15 ? item.type.substring(0, 15) + '...' : item.type,
       fullName: item.type,
-      amount: item.amount,
-      remarks: item.remarks
+      amount: item.amount
     }))
 
     return { pieData, barData }
   }
 
+  // Group data by category for tables
+  const groupDataByCategory = () => {
+    if (!dashboardData.length) return {}
+
+    const groups = {}
+    
+    dashboardData.forEach(item => {
+      let category
+      if (item.type.toLowerCase().includes('income')) {
+        category = 'Income'
+      } else if (item.type.toLowerCase().includes('expense')) {
+        category = 'Expense'
+      } else if (item.type.toLowerCase().includes('lending received')) {
+        category = 'Lending Received'
+      } else if (item.type.toLowerCase().includes('lending')) {
+        category = 'Lending'
+      } else if (item.type.toLowerCase().includes('payable amount paid')) {
+        category = 'Payable Amount Paid'
+      } else if (item.type.toLowerCase().includes('payable amount')) {
+        category = 'Payable Amount'
+      } else {
+        category = 'Other'
+      }
+
+      if (!groups[category]) {
+        groups[category] = []
+      }
+      groups[category].push(item)
+    })
+
+    return groups
+  }
+
   const { pieData, barData } = prepareChartData()
+  const groupedData = groupDataByCategory()
 
   // Custom tooltip for charts
   const CustomTooltip = ({ active, payload, label }) => {
@@ -500,7 +542,6 @@ const Portfolio = () => {
         <div className="chart-tooltip">
           <p className="tooltip-label">{data.fullName || data.name}</p>
           <p className="tooltip-value">Amount: ${payload[0].value?.toLocaleString()}</p>
-          {data.remarks && <p className="tooltip-remarks">Remarks: {data.remarks}</p>}
         </div>
       )
     }
@@ -715,18 +756,18 @@ const Portfolio = () => {
                 </button>
               </div>
 
-              {/* Charts Section */}
+              {/* Charts and Tables Section */}
               {isLoadingData ? (
                 <div className="loading-dashboard">Loading dashboard data...</div>
               ) : dashboardError ? (
                 <div className="error-dashboard">{dashboardError}</div>
               ) : dashboardData.length > 0 ? (
                 <>
-                  {/* Charts */}
+                  {/* Charts showing only totals */}
                   <div className="charts-container">
                     {/* Pie Chart */}
                     <div className="chart-section">
-                      <h3 className="chart-title">Category Distribution</h3>
+                      <h3 className="chart-title">Total Distribution</h3>
                       <ResponsiveContainer width="100%" height={300}>
                         <PieChart>
                           <Pie
@@ -734,7 +775,7 @@ const Portfolio = () => {
                             cx="50%"
                             cy="50%"
                             labelLine={false}
-                            label={({ name, value }) => `${name}: $${value.toLocaleString()}`}
+                            label={({ name, value }) => `${name.replace('TOTAL ', '')}: $${value.toLocaleString()}`}
                             outerRadius={80}
                             fill="#8884d8"
                             dataKey="value"
@@ -743,14 +784,14 @@ const Portfolio = () => {
                               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                             ))}
                           </Pie>
-                          <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, 'Amount']} />
+                          <Tooltip formatter={(value, name) => [`$${value.toLocaleString()}`, name.replace('TOTAL ', '')]} />
                         </PieChart>
                       </ResponsiveContainer>
                     </div>
 
                     {/* Bar Chart */}
                     <div className="chart-section">
-                      <h3 className="chart-title">Transactions Breakdown</h3>
+                      <h3 className="chart-title">Total Amounts</h3>
                       <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={barData}>
                           <CartesianGrid strokeDasharray="3 3" />
@@ -761,40 +802,48 @@ const Portfolio = () => {
                             height={100}
                             interval={0}
                           />
-                          <YAxis tickFormatter={(value) => `$${value.toLocaleString()}`} />
+                          <YAxis tickFormatter={(value) => `${value.toLocaleString()}`} />
                           <Tooltip content={<CustomTooltip />} />
-                          <Bar dataKey="amount" fill="#8884d8" />
+                          <Bar dataKey="amount">
+                            {barData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                          </Bar>
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
                   </div>
 
-                  {/* Data Table */}
-                  <div className="table-section">
-                    <h3 className="table-title">Transaction Details</h3>
-                    <div className="table-container">
-                      <table className="data-table">
-                        <thead>
-                          <tr>
-                            <th>Type</th>
-                            <th>Amount</th>
-                            <th>Remarks</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {dashboardData.map((item, index) => (
-                            <tr 
-                              key={index} 
-                              className={item.type.toLowerCase().includes('total') ? 'total-row' : ''}
-                            >
-                              <td className="type-cell">{item.type}</td>
-                              <td className="amount-cell">${item.amount.toLocaleString()}</td>
-                              <td className="remarks-cell">{item.remarks || '-'}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                  {/* Grouped Data Tables */}
+                  <div className="tables-container">
+                    {Object.entries(groupedData).map(([category, items]) => (
+                      <div key={category} className="table-section">
+                        <h3 className="table-title">{category}</h3>
+                        <div className="table-container">
+                          <table className="data-table">
+                            <thead>
+                              <tr>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Remarks</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {items.map((item, index) => (
+                                <tr 
+                                  key={index} 
+                                  className={item.type.toLowerCase().includes('total') ? 'total-row' : ''}
+                                >
+                                  <td className="type-cell">{item.type}</td>
+                                  <td className="amount-cell">${item.amount.toLocaleString()}</td>
+                                  <td className="remarks-cell">{item.remarks || '-'}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </>
               ) : (
