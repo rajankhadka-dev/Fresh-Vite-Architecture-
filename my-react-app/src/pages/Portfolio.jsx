@@ -406,6 +406,8 @@ const Portfolio = () => {
   useEffect(() => {
     if (isAuthenticated) {
       fetchDashboardData()
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [isAuthenticated, selectedYear, selectedMonth])
 
@@ -618,6 +620,7 @@ const Portfolio = () => {
                 <div className="input-group">
                   <input
                     type="password"
+                    autoFocus
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter passphrase"

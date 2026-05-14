@@ -37,7 +37,7 @@ const Hero = () => {
       {/* ── Left: text ── */}
       <div className="editorial-left">
         <p className="hero-greeting">✦ Hello, I&apos;m</p>
-        <h1 className="hero-name">Rajan<br />Khadka</h1>
+        <div className="hero-name-placeholder" style={{marginBottom: '20px'}} />
         <div className="hero-role-wrapper">
           <span>I&apos;m a&nbsp;</span>
           <span className="hero-role-text">

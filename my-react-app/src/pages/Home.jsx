@@ -7,6 +7,7 @@ import Footer from '../components/Footer'
 import CustomCursor from '../components/CustomCursor'
 import FloatingShapes from '../components/FloatingShapes'
 import ScrollIndicator from '../components/ScrollIndicator'
+import Contact from '../components/Contact'
 
 const Home = () => {
   useEffect(() => {
@@ -39,9 +40,11 @@ const Home = () => {
       <ScrollIndicator />
       <FloatingShapes />
       <Header />
+      <div className="hero-height-fix" style={{height: '60px'}} />
       <Hero />
       <About />
       <Services />
+      <Contact />
       <Footer />
     </div>
   )

@@ -40,7 +40,7 @@ const Signature = ({ variant = 'card', size = 1, label = true }) => {
 
   return (
     <div ref={wrapRef} className={variant === 'overlay' ? 'signature-overlay-inner' : 'signature-card'}>
-      {label && variant === 'card' && <span className="signature-label">Signature</span>}
+      {/* Label removed as per request */}
       
       <svg
         className="signature-svg-el"
@@ -142,8 +142,6 @@ const Signature = ({ variant = 'card', size = 1, label = true }) => {
         />
       </svg>
 
-      {label && variant === 'overlay' && <span className="signature-name-tag">Rajan Khadka</span>}
-      {label && variant === 'card' && <span className="signature-label">Rajan Khadka</span>}
     </div>
   )
 }

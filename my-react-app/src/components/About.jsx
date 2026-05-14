@@ -77,7 +77,7 @@ const About = () => {
         {/* Right: bio + badges */}
         <div className="about-text-col">
           <h3 className="about-greeting">
-            Hi, I&apos;m Rajan 👋
+            Nice to meet you 👋
           </h3>
 
           <p className="about-bio">
