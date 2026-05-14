@@ -21,17 +21,49 @@
 }
 
 /* Custom Cursor */
-.cursor {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #7c3aed;
+/* Custom Cursor — High Performance */
+.cursor-outer {
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid rgba(124, 58, 237, 0.4);
   border-radius: 50%;
   position: fixed;
+  top: -20px; /* Offset to center */
+  left: -20px;
   pointer-events: none;
-  z-index: 9999;
-  transition: all 0.1s ease;
-  background: rgba(124, 58, 237, 0.1);
-  backdrop-filter: blur(10px);
+  z-index: 10000;
+  transition: width 0.3s var(--ease-smooth), height 0.3s var(--ease-smooth), border-color 0.3s ease;
+  will-change: transform;
+}
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  background: #7c3aed;
+  border-radius: 50%;
+  position: fixed;
+  top: -3px;
+  left: -3px;
+  pointer-events: none;
+  z-index: 10001;
+  box-shadow: 0 0 10px #7c3aed;
+  will-change: transform;
+}
+
+.cursor-outer.cursor-hover {
+  width: 70px;
+  height: 70px;
+  top: -35px;
+  left: -35px;
+  background: rgba(124, 58, 237, 0.08);
+  border-color: rgba(124, 58, 237, 0.8);
+  border-width: 1px;
+}
+
+.cursor-dot.dot-hover {
+  transform: scale(1.5);
+  background: #ec4899;
+  box-shadow: 0 0 15px #ec4899;
 }
 
 /* Floating Shapes */
@@ -157,37 +189,51 @@
 }
 
 .cta-button {
-  display: inline-block;
-  padding: 15px 40px;
-  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 42px;
+  background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
   color: white;
   text-decoration: none;
-  border-radius: 50px;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  transition: all 0.4s var(--ease-smooth);
   position: relative;
   overflow: hidden;
-  animation: fadeInUp 1s ease 0.4s both;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.cta-button:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(124, 58, 237, 0.4), 0 0 0 4px rgba(124, 58, 237, 0.15);
+  letter-spacing: 0.05em;
+}
+
+.cta-button::after {
+  content: '→';
+  font-size: 1.2rem;
+  transition: transform 0.4s var(--ease-smooth);
+}
+
+.cta-button:hover::after {
+  transform: translateX(5px);
 }
 
 .cta-button:before {
   content: '';
   position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s ease;
 }
 
 .cta-button:hover:before {
   left: 100%;
-}
-
-.cta-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 15px 40px rgba(124, 58, 237, 0.4);
 }
 
 /* Sections */
@@ -743,48 +789,42 @@
 
 /* Stylish Button Styles */
 .stylish-button {
-  display: inline-block;
-  padding: 15px 40px;
-  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 42px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
   color: white;
   text-decoration: none;
-  border-radius: 50px;
+  border-radius: 14px;
   font-weight: 600;
-  transition: all 0.3s ease;
+  font-size: 1rem;
+  transition: all 0.4s var(--ease-smooth);
   position: relative;
   overflow: hidden;
-  margin: 10px;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   cursor: pointer;
-  font-size: 1rem;
-}
-
-.stylish-button:before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-.stylish-button:hover:before {
-  left: 100%;
 }
 
 .stylish-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 15px 40px rgba(124, 58, 237, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 .stylish-button.secondary {
-  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  background: transparent;
+  border: 1px solid #7c3aed;
+  color: #a78bfa;
 }
 
 .stylish-button.secondary:hover {
-  box-shadow: 0 15px 40px rgba(6, 182, 212, 0.4);
+  background: rgba(124, 58, 237, 0.1);
+  box-shadow: 0 15px 40px rgba(124, 58, 237, 0.25);
+  border-color: #a78bfa;
+  color: #ffffff;
 }
 
 /* Responsive Design */

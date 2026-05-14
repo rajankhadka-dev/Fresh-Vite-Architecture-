@@ -62,51 +62,52 @@ const Signature = ({ variant = 'card', size = 1, label = true }) => {
         </defs>
 
         {/* 
-          1. The Capital 'R'
+          1. The Capital 'R' (D-style with long sweeping curve)
         */}
         <path
           className={pc}
           pathLength="1"
           filter={glowFilter}
-          d="M 40,75 
-             C 35,30 65,20 75,40
-             C 80,55 60,65 50,60
-             C 45,58 55,85 70,80"
+          d="M 45,85 
+             L 45,25
+             C 45,15 95,15 95,45
+             C 95,75 45,85 45,85"
           style={{
             stroke: strokeColor,
-            strokeWidth: strokeWidth,
+            strokeWidth: strokeWidth * 1.1,
             fill: 'none',
             strokeLinecap: 'round',
             strokeLinejoin: 'round',
             strokeDasharray: 1,
             strokeDashoffset: 1,
             animationDelay: '0s',
-            animationDuration: '1.2s',
+            animationDuration: '1s',
           }}
         />
 
         {/* 
-          2. The cursive "ajans" - connected flow
+          2. The R-leg and transition to "ajans"
         */}
         <path
           className={pc}
           pathLength="1"
           filter={glowFilter}
-          d="M 75,70
-             C 85,60 95,60 95,75 
-             C 95,85 85,85 85,75
-             C 85,65 95,65 105,70
-             L 108,105 
-             C 110,120 95,120 95,105
-             C 95,95 105,75 115,70
-             C 125,60 135,60 135,75
-             C 135,85 125,85 125,75
-             C 125,65 135,65 145,70
-             C 155,60 165,60 165,75
-             C 165,60 175,60 175,75
-             C 185,60 195,60 195,75
-             C 195,65 205,65 210,70
-             C 215,75 205,85 195,80"
+          d="M 55,55 
+             C 65,65 75,85 85,82
+             C 95,70 105,70 105,80 
+             C 105,90 95,90 95,80
+             C 95,70 105,70 115,75
+             L 118,110 
+             C 120,125 105,125 105,110
+             C 105,100 115,80 125,75
+             C 135,65 145,65 145,80
+             C 145,90 135,90 135,80
+             C 135,70 145,70 155,75
+             C 165,65 175,65 175,80
+             C 175,65 185,65 185,80
+             C 195,65 205,65 205,80
+             C 205,70 215,70 220,75
+             C 225,80 215,90 205,85"
           style={{
             stroke: strokeColor,
             strokeWidth: strokeWidth,
@@ -115,8 +116,8 @@ const Signature = ({ variant = 'card', size = 1, label = true }) => {
             strokeLinejoin: 'round',
             strokeDasharray: 1,
             strokeDashoffset: 1,
-            animationDelay: '1s',
-            animationDuration: '2.5s',
+            animationDelay: '0.8s',
+            animationDuration: '2.4s',
           }}
         />
 
