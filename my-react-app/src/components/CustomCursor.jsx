@@ -14,7 +14,11 @@ const CustomCursor = () => {
   const cursor = useRef({ x: 0, y: 0 })
   const dot = useRef({ x: 0, y: 0 })
   
+  // Don't render on touch devices
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+
   useEffect(() => {
+    if (isTouchDevice) return
     const handleMouseMove = (e) => {
       mouse.current.x = e.clientX
       mouse.current.y = e.clientY
@@ -73,6 +77,8 @@ const CustomCursor = () => {
       clearInterval(interval)
     }
   }, [])
+
+  if (isTouchDevice) return null
 
   return (
     <>

@@ -1584,7 +1584,9 @@
 
   .hero-desc { margin: 0 auto 36px; }
   .hero-buttons { 
+    display: flex;
     justify-content: center;
+    flex-wrap: wrap;
     gap: 15px;
     padding-bottom: 20px;
   }
