@@ -13,12 +13,13 @@ const Home = () => {
   useEffect(() => {
     // Smooth scrolling for navigation links
     const handleSmoothScroll = (e) => {
-      const target = e.target.closest('a[href^="#"]')
+      const target = e.target.closest('a[href*="#"]')
       if (target) {
-        e.preventDefault()
-        const targetId = target.getAttribute('href')
-        const targetElement = document.querySelector(targetId)
+        const href = target.getAttribute('href')
+        const hash = href.substring(href.indexOf('#'))
+        const targetElement = document.querySelector(hash)
         if (targetElement) {
+          e.preventDefault()
           targetElement.scrollIntoView({
             behavior: 'smooth',
             block: 'start'
