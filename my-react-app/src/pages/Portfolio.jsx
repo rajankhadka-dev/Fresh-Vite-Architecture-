@@ -226,6 +226,54 @@ const dashboardStyles = `
     font-size: 0.9rem;
   }
 
+  .data-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .form-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .radio-row {
+    display: flex;
+    align-items: center;
+  }
+
+  .form-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 600px) {
+    .form-buttons {
+      flex-direction: column;
+    }
+    .form-buttons .stylish-button {
+      width: 100%;
+    }
+  }
+
   @media (max-width: 1024px) {
     .dashboard-layout {
       grid-template-columns: 1fr;
@@ -246,11 +294,11 @@ const dashboardStyles = `
     }
     
     .form-container, .dashboard-container {
-      padding: 1rem;
+      padding: 1.5rem;
     }
     
     .data-table th, .data-table td {
-      padding: 0.5rem;
+      padding: 0.75rem;
       font-size: 0.9rem;
     }
   }
