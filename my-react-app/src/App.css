@@ -411,23 +411,26 @@
 
 /* Password Protection Styles */
 .password-section {
-  height: 100vh;
+  min-height: 100vh;
+  padding: 80px 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   position: relative;
-  overflow: hidden;
+  background: radial-gradient(circle at center, #1a0a3e 0%, #06030f 100%);
 }
 
 .password-container {
   max-width: 500px;
-  padding: 40px;
+  width: 100%;
+  padding: 60px 40px;
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 30px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  margin: 20px auto;
 }
 
 .password-title {
@@ -710,6 +713,32 @@
   margin-bottom: 40px;
   opacity: 0.9;
   animation: fadeInUp 1s ease 0.2s both;
+}
+
+.demo-access-notice {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.demo-access-notice p {
+  font-size: 0.95rem;
+  color: var(--color-muted);
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.access-request-link {
+  color: var(--color-primary2);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+}
+
+.access-request-link:hover {
+  color: white;
+  text-decoration: underline;
 }
 
 .portfolio-section {
@@ -1507,9 +1536,9 @@
 /* Signature positioned to overlap onto the image */
 .signature-on-image {
   position: absolute;
-  bottom: 10%;
-  left: 50%;
-  transform: translateX(-50%) rotate(-4deg);
+  bottom: 80px;
+  left: 0;
+  transform: translateX(-15%) rotate(-4deg);
   z-index: 10;
   pointer-events: none;
 }
@@ -1669,15 +1698,159 @@
   text-decoration: underline;
 }
 
+/* ── Blog Page Styles ── */
+.blog-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.blog-main {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 140px 40px 80px;
+}
+
+.blog-header {
+  text-align: center;
+  margin-bottom: 80px;
+}
+
+.blog-intro {
+  font-size: 1.2rem;
+  color: var(--color-muted);
+  max-width: 600px;
+  margin: 20px auto 0;
+}
+
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 30px;
+}
+
+.blog-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  cursor: pointer;
+  transition: all 0.4s var(--ease-smooth);
+  display: flex;
+  flex-direction: column;
+}
+
+.blog-card:hover {
+  transform: translateY(-10px);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--color-primary);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.post-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.post-category {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-primary2);
+  background: rgba(124, 58, 237, 0.1);
+  padding: 4px 12px;
+  border-radius: 100px;
+}
+
+.post-date {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.post-title {
+  font-size: 1.5rem;
+  font-family: var(--font-heading);
+  margin-bottom: 15px;
+  line-height: 1.3;
+}
+
+.post-excerpt {
+  color: var(--color-muted);
+  line-height: 1.6;
+  margin-bottom: 25px;
+  flex: 1;
+}
+
+.read-more {
+  font-weight: 600;
+  color: var(--color-primary);
+  font-size: 0.95rem;
+}
+
+/* Full Post View */
+.blog-full-post {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 40px;
+  padding: 0;
+  transition: color 0.3s;
+}
+
+.back-btn:hover {
+  color: white;
+}
+
+.post-title-full {
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-family: var(--font-heading);
+  line-height: 1.1;
+  margin-bottom: 40px;
+}
+
+.post-content {
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.post-content p { margin-bottom: 25px; }
+.post-content h3 {
+  font-size: 1.8rem;
+  margin: 50px 0 20px;
+  color: white;
+}
+.post-content li {
+  margin-bottom: 12px;
+  list-style: disc;
+  margin-left: 20px;
+}
+
 @media (max-width: 768px) {
+  .blog-main { padding-top: 100px; }
+  .blog-grid { grid-template-columns: 1fr; }
+  .post-title-full { font-size: 2rem; }
+  
+  /* Restored Contact Form Mobile Styles */
   .contact-form .form-grid {
     grid-template-columns: 1fr;
   }
-  
   .contact-container {
     padding: 30px 20px;
   }
-  
   .form-footer {
     flex-direction: column;
     align-items: stretch;

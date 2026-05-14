@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 const Contact = () => {
+  const [searchParams] = useSearchParams()
   const [status, setStatus] = useState('')
   const [formData, setFormData] = useState({
     name: '',
@@ -8,6 +10,18 @@ const Contact = () => {
     subject: '',
     message: ''
   })
+
+  useEffect(() => {
+    const preSubject = searchParams.get('subject')
+    const preMessage = searchParams.get('message')
+    if (preSubject || preMessage) {
+      setFormData(prev => ({
+        ...prev,
+        subject: preSubject || prev.subject,
+        message: preMessage || prev.message
+      }))
+    }
+  }, [searchParams])
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })

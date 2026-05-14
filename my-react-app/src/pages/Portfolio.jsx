@@ -311,7 +311,7 @@ if (typeof document !== 'undefined') {
   document.head.appendChild(styleElement)
 }
 
-const Portfolio = () => {
+const Demo = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
   const [formData, setFormData] = useState({
@@ -613,7 +613,7 @@ const Portfolio = () => {
                 <span className="gradient-text">Secure Access</span>
               </h1>
               <p className="password-subtitle">
-                Please enter the passphrase to access the portfolio
+                Please enter the passphrase to access the demo
               </p>
               
               <form onSubmit={handlePasswordSubmit} className="password-form">
@@ -632,11 +632,25 @@ const Portfolio = () => {
                 {error && <div className="error-message">{error}</div>}
                 
                 <button type="submit" className="stylish-button">
-                  Access Portfolio
+                  Access Demo
                 </button>
               </form>
               
-              <div className="hero-buttons">
+              <div className="demo-access-notice">
+                <p>
+                  This environment is restricted to authorized partners and potential collaborators. 
+                  If you have not yet received a secure passphrase, please provide your professional 
+                  information via the form below.
+                </p>
+                <Link 
+                  to="/?subject=Request+for+Secure+Demo+Access&message=Hi+Rajan,+I'm+interested+in+exploring+your+secure+dashboard.+Could+you+please+provide+a+passphrase?#contact" 
+                  className="access-request-link"
+                >
+                  Request Access Credentials →
+                </Link>
+              </div>
+
+              <div className="hero-buttons" style={{marginTop: '40px'}}>
                 <Link to="/" className="stylish-button secondary">
                   ← Back to Home
                 </Link>
@@ -916,5 +930,5 @@ const Portfolio = () => {
   )
 }
 
-export default Portfolio
+export default Demo
 

@@ -28,6 +28,17 @@ const Home = () => {
     }
 
     document.addEventListener('click', handleSmoothScroll)
+
+    // Handle hash on load
+    const hash = window.location.hash
+    if (hash) {
+      setTimeout(() => {
+        const targetElement = document.querySelector(hash)
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }, 500)
+    }
     
     return () => {
       document.removeEventListener('click', handleSmoothScroll)

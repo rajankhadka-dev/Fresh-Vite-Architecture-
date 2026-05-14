@@ -39,7 +39,7 @@ const Hero = () => {
         <p className="hero-greeting">✦ Hello, I&apos;m</p>
         <div className="hero-name-placeholder" style={{marginBottom: '20px'}} />
         <div className="hero-role-wrapper">
-          <span>I&apos;m a&nbsp;</span>
+          <span>a&nbsp;</span>
           <span className="hero-role-text">
             {displayed}
             <span className="typewriter-cursor" />
@@ -51,7 +51,7 @@ const Hero = () => {
         </p>
         <div className="hero-buttons">
           <a href="#services" className="cta-button">Explore My Work</a>
-          <Link to="/portfolio" className="stylish-button secondary">View Portfolio</Link>
+          <Link to="/demo" className="stylish-button secondary">View Demo</Link>
         </div>
       </div>
 

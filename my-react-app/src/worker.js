@@ -8,7 +8,7 @@ class ChatbotPipeline {
     static model = 'Xenova/Qwen1.5-0.5B-Chat';
     static instance = null;
 
-    static system_prompt = "You are Rajan's AI Assistant, a helpful and friendly concierge for Rajan Khadka's portfolio website. You answer questions about Rajan, his machine learning projects, and his skills. Rajan is an expert in AI and Software Engineering. Keep responses concise and professional.";
+    static system_prompt = "You are Rajan's AI Assistant, a helpful and friendly concierge for Rajan Khadka's demo website. You answer questions about Rajan, his machine learning projects, and his skills. Rajan is an expert in AI and Software Engineering. Keep responses concise and professional.";
 
     static async getInstance(progress_callback = null) {
         if (this.instance === null) {
