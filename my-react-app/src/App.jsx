@@ -4,6 +4,7 @@ import './App.css'
 import Home from './pages/Home'
 import Demo from './pages/Portfolio'
 import Blog from './pages/Blog'
+import EarringTryOn from './pages/EarringTryOn'
 import Chatbot from './components/Chatbot'
 
 // Wrapper for page transitions
@@ -27,6 +28,7 @@ function AnimatedRoutes() {
         <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
         <Route path="/demo" element={<PageWrapper><Demo /></PageWrapper>} />
         <Route path="/blog" element={<PageWrapper><Blog /></PageWrapper>} />
+        <Route path="/earrings" element={<EarringTryOn />} />
       </Routes>
     </AnimatePresence>
   )

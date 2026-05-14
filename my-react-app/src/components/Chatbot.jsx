@@ -12,6 +12,7 @@ const Chatbot = () => {
     const [progress, setProgress] = useState(0);
     const [isGenerating, setIsGenerating] = useState(false);
     const [statusText, setStatusText] = useState('Initializing AI...');
+    const [isFallback, setIsFallback] = useState(false);
     
     const worker = useRef(null);
     const messagesEndRef = useRef(null);
@@ -51,13 +52,22 @@ const Chatbot = () => {
             };
 
             worker.current.addEventListener('message', onMessageReceived);
-        }
 
-        return () => {
-            // No cleanup needed for singleton worker usually, 
-            // but in a real app you might want to terminate it if the component unmounts for long.
-        };
-    }, []);
+            // Trigger background loading
+            worker.current.postMessage({ type: 'init' });
+
+            // 5-second timeout to switch to fallback mode if stuck
+            const timer = setTimeout(() => {
+                if (!isReady) {
+                    setIsFallback(true);
+                    setIsReady(true); // Treat as ready in fallback mode
+                    setStatusText('Running in Lightweight Mode');
+                }
+            }, 5000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [isReady]);
 
     const handleSend = async (e) => {
         e.preventDefault();
@@ -68,8 +78,21 @@ const Chatbot = () => {
         setInput('');
         setIsGenerating(true);
 
+        if (isFallback) {
+            // Simple rule-based fallback responses
+            setTimeout(() => {
+                let response = "I'm currently running in lightweight mode. I'm an expert in AI, ML, and Python. You can check my Demo section for a secure financial dashboard!";
+                const lowInput = input.toLowerCase();
+                if (lowInput.includes('contact') || lowInput.includes('email')) response = "You can reach Rajan at rajankhadka.dev@gmail.com or via the Contact form below.";
+                if (lowInput.includes('skill') || lowInput.includes('tech')) response = "Rajan specializes in Python, Machine Learning, React, and AI automation.";
+                
+                setMessages(prev => [...prev, { role: 'assistant', content: response }]);
+                setIsGenerating(false);
+            }, 1000);
+            return;
+        }
+
         // Send messages to worker for generation
-        // The worker expects the full conversation history
         const conversation = [...messages, userMessage];
         worker.current.postMessage({
             messages: conversation
@@ -107,7 +130,7 @@ const Chatbot = () => {
                                 <div className="progress-bar">
                                     <div className="progress-fill" style={{ width: `${progress}%` }}></div>
                                 </div>
-                                <p style={{fontSize: '0.8rem', opacity: 0.6}}>First load downloads ~150MB of AI weights to your browser cache.</p>
+                                <p style={{fontSize: '0.8rem', opacity: 0.6}}>First load optimized: Downloading ~135M parameters (quantized) to browser cache.</p>
                             </div>
                         )}
 
