@@ -1,83 +1,101 @@
-import React, { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
+
+const SERVICES = [
+  {
+    icon: '🐍',
+    color: 'rgba(59,130,246,0.18)',
+    border: 'rgba(59,130,246,0.35)',
+    title: 'Python Development',
+    description:
+      'Expert in Python for web apps, data pipelines, and automation. Building scalable backend systems and RESTful APIs with Django & FastAPI.',
+  },
+  {
+    icon: '🤖',
+    color: 'rgba(124,58,237,0.18)',
+    border: 'rgba(124,58,237,0.35)',
+    title: 'Machine Learning',
+    description:
+      'Developing intelligent ML models with TensorFlow, PyTorch, and scikit-learn — from data preprocessing to production deployment.',
+  },
+  {
+    icon: '📊',
+    color: 'rgba(6,182,212,0.18)',
+    border: 'rgba(6,182,212,0.35)',
+    title: 'Data Science',
+    description:
+      'Extracting actionable insights from complex datasets using advanced analytics, visualisation, and statistical modelling.',
+  },
+  {
+    icon: '💻',
+    color: 'rgba(236,72,153,0.18)',
+    border: 'rgba(236,72,153,0.35)',
+    title: 'Full-Stack Development',
+    description:
+      'Modern web applications with React, Node.js, and databases. Complete end-to-end solutions from design to deployment.',
+  },
+  {
+    icon: '🧠',
+    color: 'rgba(245,158,11,0.18)',
+    border: 'rgba(245,158,11,0.35)',
+    title: 'AI Solutions',
+    description:
+      'Intelligent applications using NLP, computer vision, and deep learning — bringing cutting-edge AI research into production.',
+  },
+  {
+    icon: '🔧',
+    color: 'rgba(34,197,94,0.18)',
+    border: 'rgba(34,197,94,0.35)',
+    title: 'DevOps & Deployment',
+    description:
+      'CI/CD pipelines, Docker containerisation, and cloud deployments on AWS, GCP, and Azure for reliable scalable infrastructure.',
+  },
+]
 
 const Services = () => {
-  useEffect(() => {
-    // Card hover animations with 3D effect
-    const cards = document.querySelectorAll('.card')
-    
-    const handleMouseMove = (e) => {
-      const rect = e.currentTarget.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const y = e.clientY - rect.top
-      
-      const centerX = rect.width / 2
-      const centerY = rect.height / 2
-      
-      const rotateX = (y - centerY) / 10
-      const rotateY = (centerX - x) / 10
-      
-      e.currentTarget.style.transform = `translateY(-10px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`
-    }
-    
-    const handleMouseLeave = (e) => {
-      e.currentTarget.style.transform = 'translateY(0) rotateX(0) rotateY(0)'
-    }
+  const cardsRef = useRef([])
 
-    cards.forEach(card => {
-      card.addEventListener('mousemove', handleMouseMove)
-      card.addEventListener('mouseleave', handleMouseLeave)
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible')
+          }
+        })
+      },
+      { threshold: 0.15 }
+    )
+
+    cardsRef.current.forEach((card) => {
+      if (card) observer.observe(card)
     })
 
-    return () => {
-      cards.forEach(card => {
-        card.removeEventListener('mousemove', handleMouseMove)
-        card.removeEventListener('mouseleave', handleMouseLeave)
-      })
-    }
+    return () => observer.disconnect()
   }, [])
-
-  const services = [
-    {
-      icon: '🐍',
-      title: 'Python Development',
-      description: 'Expert in Python programming for web applications, data analysis, and automation. Building scalable backend systems and APIs.'
-    },
-    {
-      icon: '🤖',
-      title: 'Machine Learning',
-      description: 'Developing intelligent ML models using TensorFlow, PyTorch, and scikit-learn. From data preprocessing to model deployment.'
-    },
-    {
-      icon: '📊',
-      title: 'Data Science',
-      description: 'Extracting insights from complex datasets using advanced analytics, visualization, and statistical modeling techniques.'
-    },
-    {
-      icon: '💻',
-      title: 'Full-Stack Development',
-      description: 'Building modern web applications with React, Node.js, and database technologies. End-to-end software solutions.'
-    },
-    {
-      icon: '🧠',
-      title: 'AI Solutions',
-      description: 'Creating intelligent applications with natural language processing, computer vision, and deep learning technologies.'
-    },
-    {
-      icon: '🔧',
-      title: 'DevOps & Deployment',
-      description: 'Implementing CI/CD pipelines, containerization with Docker, and cloud deployment on AWS, GCP, and Azure.'
-    }
-  ]
 
   return (
     <section className="section" id="services">
-      <h2 className="section-title">Services</h2>
+      <h2 className="section-title">What I Do</h2>
+
       <div className="cards-grid">
-        {services.map((service, index) => (
-          <div key={index} className="card">
-            <div className="card-icon">{service.icon}</div>
-            <h3>{service.title}</h3>
-            <p>{service.description}</p>
+        {SERVICES.map((svc, i) => (
+          <div
+            key={svc.title}
+            className="service-card"
+            ref={(el) => (cardsRef.current[i] = el)}
+            style={{ transitionDelay: `${i * 80}ms` }}
+          >
+            <div
+              className="service-icon-wrap"
+              style={{
+                background: svc.color,
+                boxShadow: `0 0 20px ${svc.border}`,
+              }}
+            >
+              {svc.icon}
+            </div>
+            <h3>{svc.title}</h3>
+            <p>{svc.description}</p>
           </div>
         ))}
       </div>

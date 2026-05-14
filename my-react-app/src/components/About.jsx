@@ -1,80 +1,119 @@
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import Signature from './Signature'
+
+const BADGES = [
+  { icon: '🐍', label: 'Python' },
+  { icon: '⚛️', label: 'React' },
+  { icon: '🤖', label: 'Machine Learning' },
+  { icon: '📊', label: 'Data Science' },
+  { icon: '☁️', label: 'Cloud / DevOps' },
+  { icon: '🧠', label: 'Deep Learning' },
+  { icon: '🔧', label: 'Node.js' },
+  { icon: '🗄️', label: 'SQL / NoSQL' },
+]
+
+const STATS = [
+  { number: 50, suffix: '+', label: 'Projects Completed' },
+  { number: 5,  suffix: '+', label: 'Years Experience' },
+  { number: 98, suffix: '%', label: 'Client Satisfaction' },
+  { number: 24, suffix: '/7', label: 'Support Available' },
+]
 
 const About = () => {
   const statsRef = useRef(null)
+  const [imgError, setImgError] = useState(false)
 
   useEffect(() => {
-    // Counter animation for stats
-    const animateCounter = (element, target, duration = 2000) => {
-      const start = 0
-      const increment = target / (duration / 16)
-      let current = start
-      
+    const animateCounter = (el, target) => {
+      let start = 0
+      const step = target / 80
       const timer = setInterval(() => {
-        current += increment
-        if (current >= target) {
-          current = target
-          clearInterval(timer)
-        }
-        
-        if (target % 1 === 0) {
-          element.textContent = Math.floor(current) + (element.textContent.includes('+') ? '+' : '') + (element.textContent.includes('%') ? '%' : '')
-        } else {
-          element.textContent = current.toFixed(1) + (element.textContent.includes('%') ? '%' : '')
-        }
-      }, 16)
+        start = Math.min(start + step, target)
+        el.textContent = Math.floor(start)
+        if (start >= target) clearInterval(timer)
+      }, 20)
     }
 
-    // Trigger counter animation when stats section is visible
-    const statsObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          const numbers = entry.target.querySelectorAll('.stat-number')
-          numbers.forEach(num => {
-            const text = num.textContent
-            const value = parseInt(text.replace(/[^0-9]/g, ''))
-            animateCounter(num, value)
+          entry.target.querySelectorAll('.stat-num').forEach((el) => {
+            animateCounter(el, parseInt(el.dataset.target))
           })
-          statsObserver.unobserve(entry.target)
+          observer.unobserve(entry.target)
         }
       })
     }, { threshold: 0.5 })
 
-    if (statsRef.current) {
-      statsObserver.observe(statsRef.current)
-    }
-
-    return () => {
-      statsObserver.disconnect()
-    }
+    if (statsRef.current) observer.observe(statsRef.current)
+    return () => observer.disconnect()
   }, [])
 
   return (
     <section className="section" id="about">
       <h2 className="section-title">About Me</h2>
-      <div className="stats-section" ref={statsRef}>
-        <p style={{fontSize: '1.2rem', opacity: 0.9, marginBottom: '30px'}}>
-          Passionate about creating digital experiences that blend creativity with cutting-edge technology. 
-          I specialize in bringing innovative ideas to life through code and design.
-        </p>
-        <div className="stats-grid">
-          <div className="stat-item">
-            <span className="stat-number">50+</span>
-            <span className="stat-label">Projects Completed</span>
+
+      {/* ── Two-column layout ── */}
+      <div className="about-layout">
+
+        {/* Left: photo + signature */}
+        <div className="about-photo-col">
+          <div className="about-photo-ring">
+            {!imgError ? (
+              <img
+                src="/profile.png"
+                alt="Rajan Khadka"
+                className="about-photo"
+                onError={() => setImgError(true)}
+              />
+            ) : (
+              <div className="about-photo-placeholder">👤</div>
+            )}
           </div>
-          <div className="stat-item">
-            <span className="stat-number">5+</span>
-            <span className="stat-label">Years Experience</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">98%</span>
-            <span className="stat-label">Client Satisfaction</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">24/7</span>
-            <span className="stat-label">Support Available</span>
+
+          <Signature size={0.7} label={true} />
+        </div>
+
+        {/* Right: bio + badges */}
+        <div className="about-text-col">
+          <h3 className="about-greeting">
+            Hi, I&apos;m Rajan 👋
+          </h3>
+
+          <p className="about-bio">
+            I&apos;m a passionate software developer and machine learning enthusiast
+            based in Nepal. I love turning complex problems into clean, scalable
+            solutions — whether that&apos;s building intelligent ML pipelines, crafting
+            beautiful React UIs, or designing robust backend APIs.
+          </p>
+
+          <p className="about-bio">
+            With 5+ years of hands-on experience across the full stack, I&apos;ve
+            shipped products for startups and enterprises alike. When I&apos;m not coding,
+            you&apos;ll find me exploring mountains or experimenting with new AI research.
+          </p>
+
+          <div className="tech-badges">
+            {BADGES.map((b) => (
+              <span key={b.label} className="tech-badge">
+                {b.icon} {b.label}
+              </span>
+            ))}
           </div>
         </div>
+      </div>
+
+      {/* ── Stats pills ── */}
+      <div className="stats-pill-grid" ref={statsRef}>
+        {STATS.map((s) => (
+          <div key={s.label} className="stat-pill">
+            <span className="stat-number">
+              <span className="stat-num" data-target={s.number}>0</span>
+              {s.suffix}
+            </span>
+            <span className="stat-label">{s.label}</span>
+          </div>
+        ))}
       </div>
     </section>
   )

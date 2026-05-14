@@ -1,21 +1,81 @@
-/* Reset and base styles */
-html, body {
+/* =========================================
+   DESIGN SYSTEM — CSS Custom Properties
+   ========================================= */
+:root {
+  /* Fonts */
+  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Colors */
+  --color-bg:       #06030f;
+  --color-surface:  rgba(255, 255, 255, 0.04);
+  --color-border:   rgba(255, 255, 255, 0.10);
+  --color-primary:  #7c3aed;
+  --color-primary2: #9f5ffa;
+  --color-pink:     #ec4899;
+  --color-cyan:     #06b6d4;
+  --color-text:     #ffffff;
+  --color-muted:    rgba(255, 255, 255, 0.65);
+
+  /* Glows */
+  --glow-primary: rgba(124, 58, 237, 0.40);
+  --glow-pink:    rgba(236, 72, 153, 0.30);
+  --glow-cyan:    rgba(6,  182, 212, 0.30);
+
+  /* Radii */
+  --radius-sm:  10px;
+  --radius-md:  20px;
+  --radius-lg:  30px;
+  --radius-pill: 50px;
+
+  /* Transitions */
+  --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* =========================================
+   RESET & BASE
+   ========================================= */
+*, *::before, *::after {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html, body {
   height: 100%;
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: var(--color-bg);
+  color: var(--color-text);
+  overflow-x: hidden;
 }
 
 #root {
   height: 100%;
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
+/* =========================================
+   GRADIENT TEXT UTILITY
+   ========================================= */
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-pink), var(--color-cyan));
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 4s ease infinite;
 }
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
